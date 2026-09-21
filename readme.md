@@ -4,6 +4,30 @@
 
 这是一个本地运行的小工具：左侧切换 session，中间查看原生事件，点开事件调查调用、结果、hook 与 skill 证据；同一份记录驱动现场声音和历史回放。当前 **0.1.0 已实现 dsh 接入**，面向 `@deepseek-ai/dsh@0.1.6-alpha.2`。Codex、Claude Code、Pi 暂时只有研究资料，未实现适配。
 
+## 界面预览
+
+桌面时间线：切换 session、筛选执行事件，并查看调用详情与回放位置。截图来自当前可运行版本，包含明确标记的演示 session 与导入的 dsh 联调记录。
+
+![Agent Symphony 桌面界面：左侧 session 列表、中间执行时间线与事件调查区域](outputs/dsh-workbench-desktop.png)
+
+<details>
+<summary>声音设置：逐事件与 hook 配声</summary>
+
+为原生事件、hook、工具和 skill 设置匹配规则，选择音色、调整音量，也可以上传本地音频并试听。
+
+![Agent Symphony 声音设置：声音规则、默认音色和原生事件配置目录](outputs/dsh-sound-settings.png)
+
+</details>
+
+<details>
+<summary>手机布局：390px 宽度下查看 session 与事件</summary>
+
+窄屏下可以横向浏览 session，继续使用事件筛选、详情和回放。
+
+<img src="outputs/dsh-workbench-mobile.png" alt="Agent Symphony 手机布局：session 切换、执行事件筛选和回放控件" width="390">
+
+</details>
+
 ## 启动
 
 需要 **Node.js 24+**、pnpm。没有前端构建步骤。
