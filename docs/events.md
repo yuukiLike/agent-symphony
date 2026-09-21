@@ -1,71 +1,60 @@
 # 可以听见哪些事件
 
-Agent 的活动、活动的接入方式，以及声音表达，是三个不同层次。这里整理可研究的事件来源，不代表 Agent Symphony 已支持这些平台或事件。
+资料核对日期：**2026-09-21**。这里是四个宿主的执行证据入口，公开源码或文档已核对。当前已实现 dsh 观察器与声音播放器，并完成隔离宿主联调；其他宿主仍处于研究阶段，用户生产会话尚未验证。实现范围见 [项目首页](../readme.md) 与 [验证记录](verification.md)，方向讨论见 [探索方向](exploration.md)。
 
-资料核对日期：2026-09-16。平台能力会随版本变化，实现适配器时需要再次核对文档与真实事件。返回 [项目首页](../readme.md)，或查看 [探索方向](exploration.md)。
+配置位置、完整事件目录、版本快照和原始来源见各宿主备忘录；共性与差异见 [四宿主配置比较](research/agent-config-comparison.md)，由证据导出的方案见 [观察与声音配置设计](designs/observation-and-sound-config.md)。
 
-## Tools、MCP 与 hooks 的关系
+## 先区分观察对象
 
-- Tool 是 Agent 发起的一次操作，例如执行命令、修改文件或搜索。
-- MCP 是连接外部能力的协议。MCP tool 调用也是工具调用的一种，不能因为同时带有 “tool” 和 “MCP” 标签就重复计数。MCP 还涉及 resources、prompts 等能力，不只 tools。参见 [MCP 架构说明](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)。
-- Hook 是宿主在某个生命周期节点提供的回调入口，例如工具调用前后、等待授权或子 Agent 启停。不是所有 Agent 行为都由 hook 发起，也不是所有行为都有对应 hook。
+工具调用、生命周期触发和回调脚本运行有各自的身份与时间，不能混成同一个事件：
 
-同一操作可能同时出现在 hook、事件流与日志中。接入时要保留来源与关联标识，区分同一操作的多个阶段和多个重复记录。Hook 本身的执行也可以成为观察对象，但它与触发它的工具操作不是同一件事。
-
-## 候选事件地图
-
-以下是待探索的类别与声音表达，不是通用标准事件名，也不保证每个平台都提供。
-
-| 类别 | 可寻找的事实 | 可能的听觉表达 |
+| 对象 | 例子 | 一条记录能证明什么 |
 | --- | --- | --- |
-| 会话与回合 | 会话开始、用户提交、回合开始与结束、中断 | 开场、分句、不同的收束 |
-| 模型输出 | 请求与响应状态、公开输出流、可用的使用量信息 | 一段持续活动的纹理 |
-| 工具执行 | 开始、结束、工具类别、明确返回状态、耗时 | 音符或短乐句，开始与结束的呼应 |
-| 等待与交互 | 等待授权、请求用户输入、MCP elicitation（请求用户补充信息） | 留白或可辨认的等待音型 |
-| 多 Agent 协作 | 创建、交接、等待、返回、子 Agent 结束 | 声部进入、交替与退出 |
-| 上下文整理 | 压缩开始与结束 | 短暂过渡音型 |
-| Hook 执行 | Hook 开始、完成、失败或阻止继续 | 与工具声部区分的辅助音型 |
-| 错误与恢复 | 明确错误、取消，以及来源明确报告的重试 | 音色变化，重试时乐句再现 |
+| 工具操作 | 一次 shell 或 MCP tool 调用 | 某次调用的输入、阶段或结果，取决于入口 |
+| Hook 触发点 | `PreToolUse` | 宿主到达这个扩展点；不保证工具最后获准执行 |
+| Handler 执行 | 某配置中的 `lint.sh` | 该回调开始、完成或失败；需要专门执行证据 |
+| Handler group 汇总 | 一次触发匹配了三个回调，两个成功 | 这一组的结果；不能假装拥有每个脚本的独立起止 |
+| Skill 证据 | 用户选择、宿主报告激活、读取文档、运行脚本 | 这些是不同强度的关联，不能统一当作完整 skill 调用区间 |
 
-是否表现模型输出和使用量仍需试验。按每个文本分块发声可能主要反映传输节奏；不能把它当作完整的思考过程。
+MCP tool 也是工具调用；MCP server 生命周期、用户补充信息请求、把 MCP tool 用作 hook handler，则是另外的对象。一个动作可能同时进入 hook、事件流和持久日志，应保留来源与关联 ID 后去重。具体映射以各宿主核实结果为准。
 
-## 已查阅的接入方向
+**“所有 hook 都能指定声音”是声音规则的表达能力，不是“所有 handler 的每次执行都已可见”。** 配置存在、运行时加载、触发点发生、handler 执行成功，需要分别呈现。
 
-### Codex hooks
+## 四个宿主的证据入口
 
-官方文档列出了会话、工具、授权、上下文压缩、子 Agent、停止与中断等生命周期入口。例如 `PreToolUse`、`PostToolUse`、`PermissionRequest`、`PreCompact`、`PostCompact`、`SubagentStart`、`SubagentStop`、`Stop` 与 `Interrupt`。
+| 宿主 | 本次核实的主要入口 | 对声音与调查的限制 |
+| --- | --- | --- |
+| [Codex CLI](research/platforms/codex.md) | 12 个 native hooks；app-server 的 thread/turn/item 与 hook 通知；exec JSON；rollout 历史 | exec JSON 与 rollout 都不保留完整 hook 执行；app-server 可报告本地 handler 的 sync/async 模式与结果，但 executor-scoped hooks 没有 public summaries。hosted WebSearch 不走本地 tool hook。 |
+| [DeepSeek Harness / dsh](research/platforms/dsh.md) | 持久事件及提交后的 `session/event`；session query；Cordis 扩展点；Codex/Claude bridge 的部分 hook 审计 | profile 决定实际能力；bridge 分别只接受 5/7 个原生名称，不等于原宿主全量兼容。`hook/invoked/result` 在 SessionStart 和 detached 子 agent 生命周期存在缺口。 |
+| [Claude Code](research/platforms/claude-code.md) | 33 个 native hooks；CLI/SDK hook 消息；OTel 的事件与汇总；transcript | `includeHookEvents` 也不保证全部 handler 成对起止；OTel hook 执行记录可能是 group 汇总。某些入口会改变执行，例如注册 WorktreeCreate 会接管创建流程，不能追加空回调冒充旁观。核心实现没有在公开仓库中完整开放。 |
+| [Pi](research/platforms/pi.md) | 37 个 `pi.on` 扩展事件；另有 SDK/RPC/JSON 会话流；树形 session 文件 | 扩展事件与 SDK 事件名称、payload 不完全相同；handler 可改变输入/结果。`tool_execution_start` 早于可否决的 tool_call；原生没有统一 MCP 或子 agent 配置，取决于扩展。 |
 
-适合研究明确生命周期节点的接入，但不能假定覆盖全部活动：官方文档明确指出，托管的 `WebSearch` 不走本地函数工具 hook 路径；对已有命令的 `write_stdin` 轮询也不会重新触发 `PreToolUse`。
+数字描述此次固定版本的目录范围，不表示四者能力可按数量排序。JSON 完整目录见 [Codex](research/catalogs/codex.json)、[dsh](research/catalogs/dsh.json)、[Claude Code](research/catalogs/claude-code.json)、[Pi](research/catalogs/pi.json)。
 
-命令非零退出也可出现在 `PostToolUse` 中，需要查看结果字段，而不是只凭事件名判断成功。参见 [Codex hooks 官方文档](https://learn.chatgpt.com/docs/hooks)。
+## 广义事件地图
 
-### Codex App Server
+下列是调查分类，不是跨宿主通用的 API 名。只有实际采到的事实才能驱动声音：
 
-官方事件流包含 `turn/started`、`turn/completed`、`item/started`、`item/completed` 等通知。Item 可描述命令执行、文件修改、MCP 调用、协作调用、搜索与上下文压缩；回合结束还需读取其实际状态。
+| 类别 | 值得保留的事实 | 声音可以对应什么 |
+| --- | --- | --- |
+| Session 与回合 | 创建、恢复、fork、用户提交、回合结束、中断 | 边界与不同收音；保留 session 身份 |
+| 模型交互 | 请求、响应、公开输出、使用量、明确重试 | 可观察的活动及返回；文本分块不等于思考步骤 |
+| 工具与外部服务 | 调用、返回、进度、工具与 server 身份、错误 | 起音/回音、工具材质、明确错误的变化 |
+| 等待与用户交互 | 权限请求、输入请求、elicitation | 请求音与返回音；等待期间允许安静 |
+| 多 agent 与任务 | 分派、交接、消息、等待、返回、任务状态 | 声部进入、交错与退出 |
+| 上下文与资源 | 指令/skill 的加载证据、记忆访问、压缩 | 只为已报告的变化发声 |
+| Hook | 触发点、单 handler 的阶段、group 结果 | 三种对象各有配置入口，避免重复播放 |
+| 环境与产物 | 配置变化、目录/模型切换、文件修改、产物记录 | 有证据的环境变化和结果落点 |
+| 错误与恢复 | 明确失败、取消、重试与恢复 | 依据实际状态发声，不从相似命令推断重试 |
 
-线程状态可报告 `waitingOnApproval`。`hook/started` 与 `hook/completed` 描述同步 hook，文档注明不为异步 hook 发出这些通知。
+对 `Stop`、`agent_end`、工具返回和“用户任务完成”的含义应逐宿主判断。没有错误不等于业务正确，长时间没有新事件也不证明运行停止。
 
-这是研究更细执行结构的一个方向，不意味着可以无条件旁听任意已运行会话。需先明确客户端连接、订阅和实际能收到的事件。参见 [Codex App Server 官方文档](https://learn.chatgpt.com/docs/app-server#events)。
+## 观察覆盖与被动性
 
-### Claude Code hooks
+- **绑定的范围清楚。** 声音规则保留 host、原生事件、来源、handler 或 group 身份。dsh 的 Codex bridge 事件仍属于 dsh，不能归进 Codex session。
+- **时间与配对有证据。** 保存宿主时间与采集时间、原始 ID 与本地序号；缺少开始或关联 ID 时标明，不捏造耗时。不同通道须处理重复、乱序、迟到和断连。
+- **回放说明缺口。** 宿主 transcript 是有限、版本化的历史，不一定包含实时 hook 生命周期。Symphony 自己的录制与补采记录要能区分。
+- **切换查看不驱动 agent。** 改变 Symphony 的 session/skill 过滤范围，不应自动向宿主发 resume、start、fork 或审批响应。SDK/RPC 的托管执行入口也不等于能旁听已有进程。
+- **观察器不返回控制结果。** Hook/extension 往往允许阻断、改写或注入上下文；适配器须按事件保持中立、快速投递，声音独立消费。有接管语义的入口须寻找其他证据通道，缺失就展示未覆盖。
 
-官方 hook 生命周期涵盖工具、授权、子 Agent、会话和上下文压缩等阶段，也有 `PostToolUseFailure` 与 `StopFailure` 等错误相关入口。
-
-不能直接把这些名称和语义套用到其他 Agent。尤其要区分工具执行失败、回合因 API 错误结束，以及正常停止响应。参见 [Claude Code hooks 官方文档](https://code.claude.com/docs/en/hooks#hook-lifecycle)。
-
-### MCP 事件与结果
-
-除调用的开始和返回外，可以研究来源实际提供的进度通知与交互请求。进度不一定存在；调用后保持安静，不能据此判断远端已经停止。
-
-还要区分协议层错误与工具报告的业务执行错误。MCP tools 规范使用 `isError: true` 表达后一类情况，不应只检查传输是否成功。参见 [MCP 工具错误处理](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#error-handling)。
-
-## 接入时先回答的问题
-
-1. 这是来源直接报告的事件，还是根据日志推测的状态？
-2. 能否识别任务、Agent、操作及其父子关系？开始与结束能否配对？
-3. 时间是事件发生时间还是采集时间？跨进程时间是否可比较？
-4. 同一操作是否被多个入口重复记录？是否会丢失、乱序或重放？
-5. “完成”具体指工具返回、回合结束，还是业务任务经过验证？
-6. 哪些字段真的需要保存，哪些可能含有提示词、凭据或用户数据？
-
-先弄清这些问题，再设计声音。采集不到的状态应保留为未知，不用持续背景音乐假装 Agent 仍在正常执行。
+dsh 已按这些契约完成隔离接入与故障验证，详见 [接入指南](dsh-setup.md)。其余宿主仍需逐一验证能收到哪些事件、谁的事件、来自哪次运行，以及采集器不可用时的宿主行为；目录存在不代表已经支持。

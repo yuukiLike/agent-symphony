@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3ed">
+  <title>Agent Symphony · 执行之声</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="会话列表">
+      <a class="brand" href="/" aria-label="Agent Symphony 首页"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>agent<br><strong>symphony</strong></span></a>
+      <div class="sidebar-heading"><span>工作会话</span><span id="session-count" class="count">0</span></div>
+      <label class="search-box sidebar-search"><span aria-hidden="true">⌕</span><input id="session-search" type="search" placeholder="查找名称、目录或 ID" aria-label="搜索会话"></label>
+      <div id="session-list" class="session-list"></div>
+      <div class="sidebar-footer"><span class="connection-dot" id="connection-dot"></span><span id="connection-label">正在连接本地记录器</span></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="app-title"><span class="eyebrow">EXECUTION, AUDIBLE.</span><span class="topbar-subtitle">执行之声</span></div>
+        <div class="audio-master"><button id="audio-toggle" class="button sound-toggle" aria-pressed="false"><span aria-hidden="true">◌</span><span id="audio-toggle-label">开启声音</span></button><label class="master-volume"><span class="sr-only">全局音量</span><input id="master-volume" type="range" min="0" max="1" step="0.01" value="0.35" aria-label="全局音量"><span id="master-volume-label">35%</span></label></div>
+      </header>
+
+      <nav class="tabs" aria-label="工作区"><button class="tab active" data-tab="events" aria-current="page">执行记录</button><button class="tab" data-tab="sounds">声音规则</button><button class="tab" data-tab="connection">接入与覆盖</button><span class="tabs-end">本地记录 · 只读观察</span></nav>
+
+      <section id="view-events" class="view">
+        <div id="empty-workspace" class="empty-workspace">
+          <div class="empty-instrument" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <span class="eyebrow">READY TO LISTEN</span><h1>从一次执行开始。</h1><p>接入 dsh，或导入已有的会话记录。<br>动作、返回、交错与等待，都留在自己的时间里。</p>
+          <div class="button-row"><button class="button primary" id="empty-demo">打开演示会话 <span aria-hidden="true">↗</span></button><button class="button" id="empty-import">导入记录</button></div><button class="text-button" data-open-tab="connection">查看 dsh 接入方式 →</button>
+        </div>
+
+        <div id="session-workspace" hidden>
+          <section class="session-heading"><div class="session-heading-copy"><div class="overline"><span id="session-source" class="source-label">DSH</span><span id="session-mode" class="mode-pill">实时</span><span id="session-state" class="muted"></span></div><h1 id="session-title"></h1><div class="session-path"><span id="session-cwd"></span><code id="session-short-id"></code></div><div class="session-identity"><span id="session-source-name"></span><code id="session-source-id"></code><code id="session-key"></code></div></div><div class="session-actions"><button class="button small" id="import-button">↓ 导入</button><button class="button small" id="export-button">↑ 导出</button></div></section>
+          <div id="session-lineage" class="button-row" hidden></div>
+          <div class="session-facts"><span><strong id="event-total">0</strong> 条记录</span><span><strong id="event-errors">0</strong> 次失败</span><span><strong id="session-span">—</strong> 录制跨度</span><span id="session-origin-note" class="muted"></span></div>
+          <div id="gap-banner" class="notice warning" hidden></div>
+          <div class="timeline-toolbar"><label class="search-box event-search"><span aria-hidden="true">⌕</span><input id="event-search" type="search" placeholder="搜索事件、工具、调用 ID…" aria-label="搜索事件"></label><select id="category-filter" aria-label="事件类别"><option value="">全部类别</option></select><select id="skill-filter" aria-label="调查 skill"><option value="">所有 skill</option></select><select id="skill-evidence-filter" aria-label="Skill 证据类型" hidden><option value="">全部证据类型</option></select><label class="check-label"><input id="failure-filter" type="checkbox">仅失败</label><button id="clear-filters" class="text-button" hidden>清除</button></div>
+          <div id="skill-context" class="notice" hidden></div>
+          <div class="timeline-caption"><span id="filtered-count">执行时间线</span><span>源时间 <span class="caption-divider">/</span> 原生事件 <span class="caption-divider">/</span> 关联证据</span><button id="follow-button" class="text-button active">跟随最新 ↓</button></div>
+          <div id="timeline" class="timeline" aria-label="执行时间线"></div>
+          <div id="timeline-empty" class="inline-empty" hidden><strong>没有符合条件的记录</strong><span>调整类别、skill 或搜索词，查看其他执行证据。</span></div>
+          <div id="load-state" class="load-state" aria-live="polite"></div>
+          <div class="replay-bar"><div class="transport"><button id="replay-play" class="transport-button" title="开始回放" aria-label="开始回放">▶</button><button id="replay-stop" class="transport-stop" title="停止回放" aria-label="停止回放">■</button><div class="transport-copy"><strong id="replay-label">回听执行</strong><span id="replay-basis">保留记录中的时间间隔</span></div></div><input id="replay-position" type="range" min="0" max="0" value="0" step="1" aria-label="回放事件位置"><span id="replay-progress" class="mono">0 / 0</span><select id="replay-speed" aria-label="回放速度"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select><button id="return-live" class="button small" hidden>返回现场</button></div>
+        </div>
+      </section>
+
+      <section id="view-sounds" class="view settings-view" hidden>
+        <div class="page-heading"><div><span class="eyebrow">SOUND DESK</span><h1>每个动作，一种声音。</h1><p>规则从上到下匹配，第一条生效。声音只改变你听到的记录。</p></div><span id="settings-state" class="save-state" aria-live="polite">已保存</span></div>
+        <section class="settings-section"><div class="section-heading"><div><h2>精确声音规则 <span id="rule-count" class="count">0</span></h2><p>为一个原生事件、hook 或有证据的对象设置声音。</p></div><button id="add-rule" class="button primary small">＋ 添加规则</button></div><div id="rule-list" class="rule-list"></div><div id="rules-empty" class="compact-empty">还没有精确规则。当前使用下方的类别音色。</div></section>
+        <section class="settings-section"><div class="section-heading"><div><h2>类别音色</h2><p>没有命中精确规则时，使用这些短音。</p></div><label class="button small upload-label">＋ 本地音频<input id="sound-upload" type="file" accept="audio/*" hidden></label></div><div id="category-sounds" class="category-sounds"></div><div id="asset-list" class="asset-list"></div><p class="fine-print">试听会单独发声，不进入记录。上传的音频仅存于本地，单个文件不超过 5 MB，每次播放最多 8 秒。</p></section>
+        <section class="settings-section"><div class="section-heading"><div><h2>原生事件与 Hook 目录</h2><p>每一项都可以预先配声；实际记录范围取决于接入来源。</p></div></div><label class="search-box"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="搜索原生名称，如 tool/call、PreToolUse" aria-label="搜索声音事件目录"></label><div id="catalog-list" class="catalog-list"></div></section>
+      </section>
+
+      <section id="view-connection" class="view connection-view" hidden>
+        <div class="page-heading"><div><span class="eyebrow">LOCAL OBSERVATORY</span><h1>接入与覆盖</h1><p>采集继续运行。切换查看、筛选和声音不会控制 agent。</p></div><button id="refresh-status" class="button small">刷新状态</button></div>
+        <div class="connection-card"><div class="section-heading"><h2>dsh 记录器</h2><span id="collector-state" class="mode-pill">等待接入</span></div><dl id="connection-details" class="definition-list"></dl><div id="connection-setup" class="connection-setup" hidden><div id="connection-command-block" hidden><div class="snippet-heading"><h3>在终端接入</h3><button id="copy-connection-command" class="button small">复制命令</button></div><pre id="connection-command" class="raw-json command-snippet"></pre><p class="fine-print">命令添加本地观察插件。声音播放与会话调查留在 Symphony 中。</p></div><details><summary>查看 dsh 插件配置</summary><div class="snippet-heading"><span class="muted">启动配置 patch</span><button id="copy-connection-patch" class="button small">复制配置</button></div><pre id="connection-patch" class="raw-json"></pre></details></div><p class="fine-print">凭据保存在本地 token 文件，界面不读取或展示 token。</p></div>
+        <div class="connection-card"><h2>记录覆盖</h2><div id="coverage-list"></div><p class="fine-print">“未观察到”不等于“未执行”。Hook 配置目录与执行审计分别保留。</p></div>
+        <div class="connection-card"><div class="section-heading"><div><h2>使用已有记录</h2><p>导入 dsh JSONL、zstd 文件或 Symphony 导出文件。</p></div><button class="button small" id="connection-import">↓ 选择文件</button></div><p class="fine-print">导入会话明确标记为历史来源，不会自动播放。</p></div>
+        <div class="connection-card demo-card"><div><h2>演示工作台</h2><p>三个模拟会话，包含并行、失败返回与 skill 证据。</p></div><div class="button-row"><button id="demo-button" class="button small">载入演示</button><button id="live-demo-button" class="button small">播放现场模拟</button></div><span class="fine-print">演示数据始终标记为「演示」。现场模拟只生成记录，不启动 agent。</span></div>
+      </section>
+      <footer class="main-footer"><span>AGENT SYMPHONY</span><span>记录真实过程，听见每一次发生。</span></footer>
+    </main>
+  </div>
+
+  <aside id="event-detail" class="detail-panel" hidden aria-label="事件证据"><div class="detail-top"><span class="eyebrow">EVENT INSPECTOR</span><button id="close-detail" class="icon-button" aria-label="关闭事件详情">×</button></div><div id="detail-content"></div></aside>
+  <dialog id="rule-dialog"><form id="rule-form"><div class="dialog-heading"><div><span class="eyebrow">SOUND RULE</span><h2 id="rule-dialog-title">添加声音规则</h2></div><button type="button" class="icon-button" id="close-rule" aria-label="关闭规则编辑">×</button></div><p class="muted">填写的条件需同时满足。留空表示不限。</p><div class="form-grid"><label>原生事件<input name="type" list="event-types" placeholder="例如 tool/call"></label><label>类别<select name="category"><option value="">不限类别</option></select></label><label>Hook 名称<input name="hookPoint" list="hook-points" placeholder="例如 PreToolUse"></label><label>具体 Handler ID<input name="handlerId" placeholder="仅按来源提供的 ID"></label><label>工具名<input name="toolName" placeholder="原生完整工具名"></label><label>Skill 名<input name="skillName" placeholder="按记录中的确切名称"></label><label>结果<select name="outcome"><option value="">不限结果</option><option value="success">成功</option><option value="failure">失败</option><option value="blocked">被阻止</option><option value="cancelled">取消</option><option value="unknown">未知</option></select></label><label>声音<select name="sound"></select></label></div><div class="rule-volume"><label>规则音量 <input name="volume" type="range" min="0" max="1" step="0.01" value="0.5"></label><button type="button" id="preview-rule" class="button small">▷ 试听</button></div><label class="check-label"><input name="enabled" type="checkbox" checked>启用这条规则</label><div id="rule-error" class="form-error" role="alert"></div><div class="dialog-actions"><button type="button" id="cancel-rule" class="button">取消</button><button type="submit" class="button primary">保存规则</button></div></form></dialog>
+  <datalist id="event-types"></datalist><datalist id="hook-points"></datalist>
+  <input id="import-file" type="file" accept=".json,.jsonl,.zst,.zstd,application/json,application/octet-stream" hidden>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

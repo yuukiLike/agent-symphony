@@ -4,3 +4,7 @@ dist/
 .env
 .env.*
 !.env.example
+.symphony/
+test-results/
+playwright-report/
+*.sqlite*

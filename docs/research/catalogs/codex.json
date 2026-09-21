@@ -1,0 +1,68 @@
+{
+  "host": "codex",
+  "checked_at": "2026-09-21",
+  "repository": "https://github.com/openai/codex",
+  "latest_stable": {
+    "tag": "rust-v0.155.1",
+    "published_at": "2026-09-18T20:03:04Z",
+    "commit": "be2951ea34f0d295ed0becf97079f92fa5f6950e"
+  },
+  "source_snapshot": {
+    "commit": "d1e3f9dfe3d5f6105b7e4c3958b9bf2ac6c32818",
+    "commit_date": "2026-09-21T02:02:41Z",
+    "native_hook_enum_url": "https://github.com/openai/codex/blob/d1e3f9dfe3d5f6105b7e4c3958b9bf2ac6c32818/codex-rs/app-server-protocol/src/protocol/v2/hook.rs#L18-L22",
+    "hooks_code_identical_to_latest_stable": true
+  },
+  "evidence_memo": "../platforms/codex.md",
+  "native_hooks_complete_for_snapshot": true,
+  "native_hooks": [
+    {"name": "SessionStart", "group": "session", "matcher_field": "source", "matcher_values": ["startup", "resume", "clear", "compact", "fork"], "turn_id": false, "tool_call_id": false, "async_command_supported": true},
+    {"name": "SessionEnd", "group": "session", "matcher_field": "reason", "matcher_values": ["other"], "turn_id": false, "tool_call_id": false, "async_command_supported": false, "notes": ["Main thread only", "Always synchronous", "No model field in actual input schema", "Not emitted merely for a UI session switch"]},
+    {"name": "UserPromptSubmit", "group": "turn", "matcher_field": null, "turn_id": true, "tool_call_id": false, "async_command_supported": true},
+    {"name": "Stop", "group": "turn", "matcher_field": null, "turn_id": true, "tool_call_id": false, "async_command_supported": true, "notes": ["Turn stopping, not session close"]},
+    {"name": "Interrupt", "group": "turn", "matcher_field": null, "turn_id": true, "tool_call_id": false, "async_command_supported": true, "notes": ["Active main-thread turn only", "Default timeout 1s, maximum 3s"]},
+    {"name": "PreToolUse", "group": "tool", "matcher_field": "tool_name_and_aliases", "turn_id": true, "tool_call_id": true, "async_command_supported": true},
+    {"name": "PermissionRequest", "group": "permission", "matcher_field": "tool_name_and_aliases", "turn_id": true, "tool_call_id": false, "async_command_supported": true, "notes": ["No tool_use_id in native input", "Only approval-requiring operations"]},
+    {"name": "PostToolUse", "group": "tool", "matcher_field": "tool_name_and_aliases", "turn_id": true, "tool_call_id": true, "async_command_supported": true, "notes": ["Also emitted for Bash nonzero exit"]},
+    {"name": "PreCompact", "group": "context", "matcher_field": "trigger", "matcher_values": ["manual", "auto"], "turn_id": true, "tool_call_id": false, "async_command_supported": true},
+    {"name": "PostCompact", "group": "context", "matcher_field": "trigger", "matcher_values": ["manual", "auto"], "turn_id": true, "tool_call_id": false, "async_command_supported": true},
+    {"name": "SubagentStart", "group": "agent", "matcher_field": "agent_type", "turn_id": true, "tool_call_id": false, "async_command_supported": true},
+    {"name": "SubagentStop", "group": "agent", "matcher_field": "agent_type", "turn_id": true, "tool_call_id": false, "async_command_supported": true}
+  ],
+  "configuration": {
+    "files": ["$CODEX_HOME/hooks.json", "$CODEX_HOME/config.toml", "<trusted-project>/.codex/hooks.json", "<trusted-project>/.codex/config.toml"],
+    "layers_combine_hooks": "additive",
+    "nonmanaged_hooks_require_definition_hash_trust": true,
+    "supported_handler_types": ["command", "mcp_tool"],
+    "parsed_but_skipped_handler_types": ["prompt", "agent"],
+    "default_command_timeout_seconds": 600,
+    "async_max_concurrent_per_session": 8,
+    "async_can_deliver_context": true,
+    "passive_collector_must_return_empty_output_and_exit_zero": true
+  },
+  "coverage": {
+    "native_tool_hooks_observe_hosted_websearch": false,
+    "native_tool_hooks_observe_all_internal_tool_paths": false,
+    "native_hook_input_has_common_timestamp": false,
+    "native_hook_input_has_unique_occurrence_id": false,
+    "native_hooks_include_skill_start_end": false,
+    "collector_hook_observes_other_handler_executions": false,
+    "exec_json_exposes_hook_runs": false,
+    "rollout_persists_hook_started_completed": false,
+    "app_server_exposes_local_hook_runs": true,
+    "app_server_exposes_executor_scoped_hook_summaries": false,
+    "app_server_thread_read_subscribes": false,
+    "arbitrary_cli_session_readonly_attach_verified": false,
+    "runtime_tested": false
+  },
+  "exec_json_top_level_events_complete": ["thread.started", "turn.started", "turn.completed", "turn.failed", "item.started", "item.updated", "item.completed", "error"],
+  "exec_json_item_types_complete": ["agent_message", "reasoning", "command_execution", "file_change", "mcp_tool_call", "collab_tool_call", "web_search", "todo_list", "error"],
+  "app_server_hook_observation": {
+    "catalog_method": "hooks/list",
+    "notifications": ["hook/started", "hook/completed"],
+    "statuses": ["running", "completed", "failed", "blocked", "stopped"],
+    "run_id_is_universal_occurrence_uuid": false,
+    "run_timestamp_unit": "unix_seconds",
+    "duration_unit": "milliseconds"
+  }
+}

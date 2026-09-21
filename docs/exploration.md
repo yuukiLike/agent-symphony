@@ -4,6 +4,16 @@ Agent Symphony 想把执行现象变成可以听见、重放和对照的音乐�
 
 本文记录当前讨论的结论与待验证的假设，不是已经实现的规格。返回 [项目首页](../readme.md)，或查看 [事件来源](events.md)。
 
+## 2026-09-21：本轮选择
+
+用户选择「执行发声」：动作、等待和并行直接变成可辨认的声音，像听一台机器运转。声音的节奏跟随实际执行；当前探索以动作的听觉身份、开始与返回、间隔和交错为中心。任务旋律的成长、音乐叙事和演奏已有曲目不作为本轮主线。
+
+具体候选规则与试听实验见 [直接听见执行](designs/direct-execution-sound.md)。方向已选择，音色的听觉辨识度仍待用户试听；下文的旧有声音映射继续作为候选材料。
+
+随后用户明确：工具保持旁观，清楚记录完整执行过程，提供清楚的 session 切换，并能指定 skill 进行调查。Hooks、tools、MCP 是例子，不限制事件模型的范围。新的过程展示、调查与声音联动提案见 [Session 与 Skill 调查](designs/session-investigation.md)。
+
+进一步要求所有 hook 均可指定声音，并先研究 Codex、DeepSeek Harness（dsh）、Claude Code、Pi 的配置。本轮已完成 [四平台配置与事件比较](research/agent-config-comparison.md) 和相应的 [观察与声音配置设计](designs/observation-and-sound-config.md)。原生名称与证据差异保留，声音设置共用；配置可保存与运行可采集分别呈现。随后按用户要求先实现 dsh，现已完成本地记录器、调查界面、配声回放和真实宿主隔离联调，具体范围见 [项目首页](../readme.md) 与 [验证记录](verification.md)。
+
 ## 已确认的方向
 
 - 关注执行过程，不只在成功或失败时播放提示音。

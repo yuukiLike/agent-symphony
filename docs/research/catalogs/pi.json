@@ -1,0 +1,389 @@
+{
+  "platform": "pi",
+  "kind": "research_snapshot_not_product_configuration",
+  "verified_date": "2026-09-21",
+  "repository": "https://github.com/earendil-works/pi",
+  "former_repository": "https://github.com/badlogic/pi-mono",
+  "package": "@earendil-works/pi-coding-agent",
+  "release": "v0.86.1",
+  "release_published_at": "2026-09-20T11:19:20Z",
+  "commit": "13cbf77df2396303013a41646bcfa77b4271ae56",
+  "runtime_verified": false,
+  "native_extension_hooks": [
+    {
+      "name": "project_trust",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`cwd`；ctx 仅有 cwd/mode/hasUI/有限 UI",
+      "handler_semantics": "**必须**返回 `trusted: yes/no/undecided`，可 `remember`；纯观察应 `undecided`。"
+    },
+    {
+      "name": "resources_discover",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`cwd`, `reason: startup/reload`",
+      "handler_semantics": "可返回 `skillPaths/promptPaths/themePaths`。不是某项资源成功加载事件。"
+    },
+    {
+      "name": "session_start",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`reason: startup/reload/new/resume/fork`, `previousSessionFile?`",
+      "handler_semantics": "通知。当前会话从 ctx 读取。"
+    },
+    {
+      "name": "session_info_changed",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`name`（可 undefined）",
+      "handler_semantics": "通知；改名/清空名字。"
+    },
+    {
+      "name": "session_before_switch",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`reason: new/resume`, `targetSessionFile?`",
+      "handler_semantics": "可 `cancel`。"
+    },
+    {
+      "name": "session_before_fork",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`entryId`, `position: before/at`",
+      "handler_semantics": "可 `cancel`；`skipConversationRestore` 当前文档标为保留。"
+    },
+    {
+      "name": "session_before_compact",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`preparation`, `branchEntries`, `customInstructions?`, `reason: manual/threshold/overflow`, `willRetry`, `signal`",
+      "handler_semantics": "可取消或返回自定义 `compaction`。"
+    },
+    {
+      "name": "session_compact",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`compactionEntry`, `fromExtension`, `reason`, `willRetry`",
+      "handler_semantics": "压缩成功通知。"
+    },
+    {
+      "name": "session_compact_failed",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`reason`, `errorMessage?`, `aborted`, `willRetry`, `fromExtension`",
+      "handler_semantics": "压缩失败或取消通知。"
+    },
+    {
+      "name": "session_shutdown",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`reason: quit/reload/new/resume/fork`, `targetSessionFile?`",
+      "handler_semantics": "旧 runtime 拆除通知；不等于程序退出。"
+    },
+    {
+      "name": "session_before_tree",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`preparation` 内含 `targetId/oldLeafId/commonAncestorId/entriesToSummarize/userWantsSummary`；`signal`",
+      "handler_semantics": "可取消、替换摘要、修改摘要指令/label。"
+    },
+    {
+      "name": "session_tree",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`newLeafId`, `oldLeafId`, `summaryEntry?`, `fromExtension?`",
+      "handler_semantics": "同一会话树导航通知。"
+    },
+    {
+      "name": "context",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`messages` 深拷贝",
+      "handler_semantics": "可返回替换 messages；每次 LLM 调用前。"
+    },
+    {
+      "name": "cache_warming_decision",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`warmCost`, `missCost`, `continuationProbability`, `action`",
+      "handler_semantics": "可返回 `action: warm/stop`；这是 cache 维护，不是用户任务进度。"
+    },
+    {
+      "name": "before_provider_request",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`payload`",
+      "handler_semantics": "可返回替换 provider payload。"
+    },
+    {
+      "name": "before_provider_headers",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`headers`",
+      "handler_semantics": "原位修改有效，返回值忽略；不要采集鉴权头。"
+    },
+    {
+      "name": "after_provider_response",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`status`, `headers`",
+      "handler_semantics": "response 到达、消费 stream 之前；不是完整回答结束。"
+    },
+    {
+      "name": "before_agent_start",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "展开后的 `prompt`, `images?`, `systemPrompt`, 可变 `systemPromptOptions`",
+      "handler_semantics": "可注入 message、替换 prompt；可变集合也会影响行为。"
+    },
+    {
+      "name": "agent_start",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "无额外字段",
+      "handler_semantics": "一次底层 agent run 开始。"
+    },
+    {
+      "name": "agent_end",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`messages`",
+      "handler_semantics": "一次底层 run 结束；**可能随后自动 retry、compact 或 follow-up**。"
+    },
+    {
+      "name": "agent_settled",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "无额外字段",
+      "handler_semantics": "没有上述自动继续剩余；仍不表示结果语义正确。"
+    },
+    {
+      "name": "ui_prompt_start",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`reason: ui_prompt`, `kind: select/confirm/input/editor/custom`, `title?`",
+      "handler_semantics": "阻塞式扩展 UI 开始等待用户；不是通用权限事件。"
+    },
+    {
+      "name": "ui_prompt_end",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "同上",
+      "handler_semantics": "该阻塞式扩展 UI 等待结束。"
+    },
+    {
+      "name": "turn_start",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`turnIndex`, `timestamp`",
+      "handler_semantics": "一次 turn 开始；index 不是全局 UUID。"
+    },
+    {
+      "name": "turn_end",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`turnIndex`, `message`, `toolResults`",
+      "handler_semantics": "一次 turn 结束。"
+    },
+    {
+      "name": "message_start",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`message`",
+      "handler_semantics": "消息开始；依 role 区分用户/助手/工具等。"
+    },
+    {
+      "name": "message_update",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`message`, `assistantMessageEvent`",
+      "handler_semantics": "流式更新，可能高频。"
+    },
+    {
+      "name": "message_end",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`message`",
+      "handler_semantics": "**可以返回替换 message**，须保留原 role；并非强制只读事件。"
+    },
+    {
+      "name": "tool_execution_start",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`toolCallId`, `toolName`, `args`",
+      "handler_semantics": "preflight 中发出，早于 `tool_call`；不能证明实际执行已经发生。"
+    },
+    {
+      "name": "tool_execution_update",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`toolCallId`, `toolName`, `args`, `partialResult`",
+      "handler_semantics": "工具增量进度；并发时相互穿插。"
+    },
+    {
+      "name": "tool_execution_end",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`toolCallId`, `toolName`, `result`, `isError`",
+      "handler_semantics": "工具最终处理结束；用 `isError` 分成功/错误。"
+    },
+    {
+      "name": "model_select",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`model`, `previousModel`, `source: set/cycle/restore`",
+      "handler_semantics": "模型改变通知。"
+    },
+    {
+      "name": "thinking_level_select",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`level`, `previousLevel`",
+      "handler_semantics": "配置的 thinking level 改变；不是模型开始推理。"
+    },
+    {
+      "name": "tool_call",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`toolCallId`, `toolName`, 可变 `input`",
+      "handler_semantics": "可 `block/reason/terminate`；原位改参数直接生效且不重新校验。"
+    },
+    {
+      "name": "tool_result",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`toolCallId`, `toolName`, `input`, `content`, `details`, `isError`, `usage?`",
+      "handler_semantics": "可 patch content/details/isError/usage；在 execution_end 之前。"
+    },
+    {
+      "name": "user_bash",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`command`, `excludeFromContext`, `cwd`",
+      "handler_semantics": "用户 `!`/`!!`；可替换 operations 或整个 result。"
+    },
+    {
+      "name": "input",
+      "surface": "ExtensionAPI.on",
+      "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts#L1261",
+      "payload_summary": "`text`, `images?`, `source: interactive/rpc/extension`, `streamingBehavior?: steer/followUp`",
+      "handler_semantics": "`continue/transform/handled`；在 skill/template 展开前。"
+    }
+  ],
+  "session_stream": {
+    "surfaces": [
+      "AgentSession.subscribe",
+      "RPC stdout",
+      "JSON mode stdout"
+    ],
+    "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/agent-session.ts#L153",
+    "base_source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/agent/src/types.ts#L448",
+    "events": [
+      "agent_start",
+      "agent_end",
+      "turn_start",
+      "turn_end",
+      "message_start",
+      "message_update",
+      "message_end",
+      "tool_execution_start",
+      "tool_execution_update",
+      "tool_execution_end",
+      "agent_settled",
+      "queue_update",
+      "compaction_start",
+      "entry_appended",
+      "session_info_changed",
+      "thinking_level_changed",
+      "compaction_end",
+      "auto_retry_start",
+      "auto_retry_end",
+      "summarization_retry_scheduled",
+      "summarization_retry_attempt_start",
+      "summarization_retry_finished",
+      "bash_execution_update"
+    ],
+    "not_native_extension_hooks": [
+      "queue_update",
+      "compaction_start",
+      "entry_appended",
+      "thinking_level_changed",
+      "compaction_end",
+      "auto_retry_start",
+      "auto_retry_end",
+      "summarization_retry_scheduled",
+      "summarization_retry_attempt_start",
+      "summarization_retry_finished",
+      "bash_execution_update"
+    ],
+    "differences": [
+      "Extension agent_end has no willRetry; AgentSession agent_end adds willRetry.",
+      "Extension turn_start/end add turnIndex; core session stream does not have it.",
+      "RPC/JSON message_update is delta-only and omits cumulative message/partial; SDK and extensions retain snapshots.",
+      "entry_appended existence is not a guarantee every persistence append broadcasts this event."
+    ]
+  },
+  "assistant_stream_sub_events": {
+    "container": "message_update.assistantMessageEvent",
+    "source": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/ai/src/types.ts#L652",
+    "events": [
+      "start",
+      "text_start",
+      "text_delta",
+      "text_end",
+      "thinking_start",
+      "thinking_delta",
+      "thinking_end",
+      "toolcall_start",
+      "toolcall_delta",
+      "toolcall_end",
+      "done",
+      "error"
+    ]
+  },
+  "rpc_additional_protocol_types": [
+    {
+      "name": "extension_error",
+      "kind": "error_notification"
+    },
+    {
+      "name": "extension_ui_request",
+      "kind": "ui_request_or_notification"
+    },
+    {
+      "name": "extension_ui_response",
+      "kind": "client_response_not_agent_event"
+    }
+  ],
+  "known_absences": [
+    "No native shell-command hooks settings dictionary.",
+    "No skill_start/skill_end native extension events.",
+    "No built-in MCP client or native sub-agent lifecycle contract.",
+    "session_directory/session_switch/session_fork are not in this release ExtensionAPI.on."
+  ],
+  "observer_constraints": [
+    "Return void/undefined and do not mutate event fields.",
+    "project_trust is special: limited context and required neutral {trusted: undecided}.",
+    "Extension handlers are awaited in order; never await sound playback.",
+    "tool_call handler failures can block/fail a tool.",
+    "SDK listeners are called synchronously without an exception wrapper.",
+    "Session metadata must be attached explicitly; most events have no timestamp/sessionId."
+  ],
+  "sources": {
+    "package": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/package.json",
+    "settings": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/docs/settings.md",
+    "extensions": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/docs/extensions.md",
+    "types": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/types.ts",
+    "runner": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/extensions/runner.ts",
+    "resource_loader": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/resource-loader.ts",
+    "package_manager": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/package-manager.ts",
+    "skills": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/docs/skills.md",
+    "session_format": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/docs/session-format.md",
+    "session_manager": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/session-manager.ts",
+    "agent_session": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/src/core/agent-session.ts",
+    "rpc": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/docs/rpc.md",
+    "json": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/docs/json.md",
+    "sdk": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/docs/sdk.md",
+    "readme": "https://github.com/earendil-works/pi/blob/13cbf77df2396303013a41646bcfa77b4271ae56/packages/coding-agent/README.md"
+  }
+}

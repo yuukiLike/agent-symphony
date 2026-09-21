@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "host": "claude-code",
+  "checked_at": "2026-09-21",
+  "verification": "official-documentation-and-public-repository-metadata-only; no-runtime-test",
+  "release": {
+    "version": "2.1.278",
+    "published_at": "2026-09-19T03:10:40Z",
+    "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.278"
+  },
+  "repository": {
+    "url": "https://github.com/anthropics/claude-code",
+    "commit": "7974a70773fa229e4cc65aa1b356cc21f5c216c4",
+    "core_runtime_source_verified": false
+  },
+  "native_hook_count": 33,
+  "native_hooks": [
+    {
+      "event": "SessionStart",
+      "matcher_scope": "session_start_source",
+      "source": "https://code.claude.com/docs/en/hooks#sessionstart"
+    },
+    {
+      "event": "SessionEnd",
+      "matcher_scope": "session_end_reason",
+      "source": "https://code.claude.com/docs/en/hooks#sessionend"
+    },
+    {
+      "event": "Setup",
+      "matcher_scope": "setup_trigger",
+      "source": "https://code.claude.com/docs/en/hooks#setup"
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#userpromptsubmit"
+    },
+    {
+      "event": "UserPromptExpansion",
+      "matcher_scope": "command_name",
+      "source": "https://code.claude.com/docs/en/hooks#userpromptexpansion"
+    },
+    {
+      "event": "MessageDisplay",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#messagedisplay"
+    },
+    {
+      "event": "PreToolUse",
+      "matcher_scope": "tool_name",
+      "source": "https://code.claude.com/docs/en/hooks#pretooluse"
+    },
+    {
+      "event": "PostToolUse",
+      "matcher_scope": "tool_name",
+      "source": "https://code.claude.com/docs/en/hooks#posttooluse"
+    },
+    {
+      "event": "PostToolUseFailure",
+      "matcher_scope": "tool_name",
+      "source": "https://code.claude.com/docs/en/hooks#posttoolusefailure"
+    },
+    {
+      "event": "PostToolBatch",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#posttoolbatch"
+    },
+    {
+      "event": "PermissionRequest",
+      "matcher_scope": "tool_name",
+      "source": "https://code.claude.com/docs/en/hooks#permissionrequest",
+      "correlation_gap": "Payload lacks tool_use_id."
+    },
+    {
+      "event": "PermissionDenied",
+      "matcher_scope": "tool_name",
+      "source": "https://code.claude.com/docs/en/hooks#permissiondenied"
+    },
+    {
+      "event": "SubagentStart",
+      "matcher_scope": "agent_type",
+      "source": "https://code.claude.com/docs/en/hooks#subagentstart"
+    },
+    {
+      "event": "SubagentStop",
+      "matcher_scope": "agent_type",
+      "source": "https://code.claude.com/docs/en/hooks#subagentstop"
+    },
+    {
+      "event": "TeammateIdle",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#teammateidle"
+    },
+    {
+      "event": "TaskCreated",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#taskcreated"
+    },
+    {
+      "event": "TaskCompleted",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#taskcompleted"
+    },
+    {
+      "event": "Stop",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#stop"
+    },
+    {
+      "event": "StopFailure",
+      "matcher_scope": "error_type",
+      "source": "https://code.claude.com/docs/en/hooks#stopfailure"
+    },
+    {
+      "event": "InstructionsLoaded",
+      "matcher_scope": "load_reason",
+      "source": "https://code.claude.com/docs/en/hooks#instructionsloaded"
+    },
+    {
+      "event": "PreCompact",
+      "matcher_scope": "compaction_trigger",
+      "source": "https://code.claude.com/docs/en/hooks#precompact"
+    },
+    {
+      "event": "PostCompact",
+      "matcher_scope": "compaction_trigger",
+      "source": "https://code.claude.com/docs/en/hooks#postcompact"
+    },
+    {
+      "event": "PreModelSwitch",
+      "matcher_scope": "canonical_target_model",
+      "source": "https://code.claude.com/docs/en/hooks#premodelswitch",
+      "passive_recorder_registration": "requires-special-review",
+      "reason": "A synchronous handler timeout blocks the model switch."
+    },
+    {
+      "event": "PostModelSwitch",
+      "matcher_scope": "canonical_target_model",
+      "source": "https://code.claude.com/docs/en/hooks#postmodelswitch"
+    },
+    {
+      "event": "ConfigChange",
+      "matcher_scope": "configuration_source",
+      "source": "https://code.claude.com/docs/en/hooks#configchange"
+    },
+    {
+      "event": "CwdChanged",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#cwdchanged"
+    },
+    {
+      "event": "DirectoryAdded",
+      "matcher_scope": "directory_add_source",
+      "source": "https://code.claude.com/docs/en/hooks#directoryadded"
+    },
+    {
+      "event": "FileChanged",
+      "matcher_scope": "filename",
+      "source": "https://code.claude.com/docs/en/hooks#filechanged",
+      "matcher_exception": "Watch list is split into literal filenames; do not treat it as generic regex/glob."
+    },
+    {
+      "event": "WorktreeCreate",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#worktreecreate",
+      "passive_recorder_registration": "excluded",
+      "reason": "Registering handler replaces default worktree creation and requires returning created path."
+    },
+    {
+      "event": "WorktreeRemove",
+      "matcher_scope": null,
+      "source": "https://code.claude.com/docs/en/hooks#worktreeremove"
+    },
+    {
+      "event": "Elicitation",
+      "matcher_scope": "mcp_server_name",
+      "source": "https://code.claude.com/docs/en/hooks#elicitation"
+    },
+    {
+      "event": "ElicitationResult",
+      "matcher_scope": "mcp_server_name",
+      "source": "https://code.claude.com/docs/en/hooks#elicitationresult"
+    },
+    {
+      "event": "Notification",
+      "matcher_scope": "notification_type",
+      "source": "https://code.claude.com/docs/en/hooks#notification"
+    }
+  ],
+  "handler_types": [
+    "command",
+    "http",
+    "mcp_tool",
+    "prompt",
+    "agent"
+  ],
+  "handler_event_stream": {
+    "channel": "programmatic stream-json / Agent SDK",
+    "enable": "--include-hook-events / includeHookEvents",
+    "events": [
+      "hook_started",
+      "hook_progress",
+      "hook_response"
+    ],
+    "correlation_fields": [
+      "hook_id",
+      "session_id",
+      "uuid",
+      "hook_name",
+      "hook_event"
+    ],
+    "response_fields": [
+      "outcome",
+      "exit_code"
+    ],
+    "source": "https://code.claude.com/docs/en/agent-sdk/typescript#sdkhookstartedmessage",
+    "coverage_gaps": {
+      "documented_examples_no_started": [
+        "Notification",
+        "SessionEnd",
+        "PreCompact",
+        "PostCompact"
+      ],
+      "examples_exhaustive": false,
+      "progress_for_these": "Command handler runs longer than one second and emits output.",
+      "response_for_these": "Only background handler completion.",
+      "interactive_cli_attach_verified": false
+    },
+    "stable_config_identity_mapping_verified": false
+  },
+  "telemetry": {
+    "logs": {
+      "enable": [
+        "CLAUDE_CODE_ENABLE_TELEMETRY=1",
+        "OTEL_LOGS_EXPORTER=otlp",
+        "configure OTLP endpoint/protocol"
+      ],
+      "hook_events": [
+        "claude_code.hook_registered",
+        "claude_code.hook_execution_start",
+        "claude_code.hook_execution_complete"
+      ],
+      "granularity": "execution start/complete aggregate all matched handlers",
+      "skill_event": "claude_code.skill_activated",
+      "skill_triggers": [
+        "user-slash",
+        "claude-proactive",
+        "nested-skill"
+      ],
+      "custom_skill_names_gate": "OTEL_LOG_TOOL_DETAILS=1",
+      "default_export_interval_ms": 5000
+    },
+    "traces": {
+      "enable": [
+        "CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1",
+        "OTEL_TRACES_EXPORTER"
+      ],
+      "hook_span_extra_gates": [
+        "ENABLE_BETA_TRACING_DETAILED=1",
+        "BETA_TRACING_ENDPOINT",
+        "interactive CLI organization allowlist"
+      ],
+      "sdk_print_allowlist_required": false,
+      "hook_span_granularity": "aggregate"
+    },
+    "source": "https://code.claude.com/docs/en/monitoring-usage",
+    "ordering": "event.sequence is per process, not per session; may repeat after resume in another process"
+  },
+  "passive_handler_contract": {
+    "type": "command",
+    "async": true,
+    "stdout": "empty",
+    "stderr": "empty",
+    "exit_code": 0,
+    "forbidden_outputs": [
+      "additionalContext",
+      "permissionDecision",
+      "continue",
+      "CLAUDE_ENV_FILE writes"
+    ],
+    "async_rewake": false,
+    "limitations": [
+      "process-start overhead remains",
+      "async timeout not enforced after background launch",
+      "print-mode teardown can cancel pending async handlers",
+      "audio must run in separate consumer"
+    ],
+    "sample_in": "../platforms/claude-code.md"
+  },
+  "skill_attribution": {
+    "sources": [
+      "Skill tool hooks",
+      "UserPromptExpansion",
+      "claude_code.skill_activated",
+      "host-reported skill attributes"
+    ],
+    "no_universal_skill_finished_event": true,
+    "reading_skill_file_is_invocation_proof": false
+  },
+  "transcripts": {
+    "default": "~/.claude/projects/<project>/<session-id>.jsonl",
+    "format_stability": "internal/version-specific",
+    "writes": "asynchronous; optionally disabled",
+    "default_retention_days": 30,
+    "source": "https://code.claude.com/docs/en/sessions#where-transcripts-are-stored"
+  }
+}
