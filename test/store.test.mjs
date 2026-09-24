@@ -103,10 +103,28 @@ test('journal and settings survive process store reopening', () => {
   let store = new Store(dir);
   try {
     store.ingest(batch([start]));
-    store.saveSettings({ ...structuredClone(DEFAULT_SETTINGS), audio: { enabled: true, volume: 0.6 } });
+    const rules = [
+      { id: 'keyword', enabled: true, match: { callContains: 'gstack' }, sound: 'dissonance', volume: 0.4 },
+      { id: 'tool-name', enabled: true, match: { toolName: { contains: 'gstack' } }, sound: 'dissonance' },
+      { id: 'skill-name', enabled: false, match: { skillName: { contains: 'review' } }, sound: 'mute' },
+      ...structuredClone(DEFAULT_SETTINGS.rules),
+    ];
+    store.saveSettings({ ...structuredClone(DEFAULT_SETTINGS), rules, audio: { enabled: true, volume: 0.6 } });
     store.close();
     store = new Store(dir);
     assert.equal(store.counts().events, 1);
     assert.equal(store.getSettings().audio.volume, 0.6);
+    assert.deepEqual(store.getSettings().rules, rules);
   } finally { store.close(); rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('settings reject ambiguous, empty or unsupported name and keyword matchers', () => {
+  for (const match of [{ toolName: { contains: '' } }, { skillName: { contains: '   ' } },
+    { toolName: { contains: 'gstack', regex: true } }, { toolName: { equals: 'gstack' } },
+    { toolName: ['gstack'] }, { toolName: null }, { type: { contains: 'tool' } },
+    { callContains: '' }, { callContains: ' ' }, { callContains: { contains: 'gstack' } },
+    { callContains: 'x'.repeat(501) }, { unknown: 'gstack' }]) {
+    assert.throws(() => validateSettings({ ...structuredClone(DEFAULT_SETTINGS),
+      rules: [{ id: 'invalid', enabled: true, match, sound: 'dissonance' }] }), /无效的规则条件/);
+  }
 });

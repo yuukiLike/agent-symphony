@@ -24,7 +24,7 @@
 - `GET /api/sessions/:key/events?after=-1&limit=1000`：按 seq 升序 `{events:[normalized], nextAfter, hasMore}`；客户端通过 hasMore 继续分页，不能假定完整记录只有1000条。
 - `GET /api/sessions/:key/export`：可下载 Symphony JSON，含 source、session、原始 events 和 gaps；仅导出已保留并脱敏的记录。
 - `GET /api/catalog`：`{events:[{type,label,category,description,known}],hooks:[{point,dialects,coverage}], categories:[{id,label}]}`；包含已观察到的未知事件。
-- `GET /api/settings` / `PUT /api/settings`：`{audio:{enabled:false,volume:0.35},rules:[{id,enabled:true,match:{type?,category?,hookPoint?,handlerId?,toolName?,skillName?,outcome?},sound:"wood",volume:0.5}],categorySounds:{tool:"wood",hook:"click",...}}`；first matching enabled rule。预置 sounds：wood, glass, bell, low, brush, click, mute；自定义 sound 为上传返回的 `asset:<id>`。
+- `GET /api/settings` / `PUT /api/settings`：`{audio:{enabled:false,volume:0.35},rules:[{id,enabled:true,match:{type?,category?,hookPoint?,handlerId?,toolName?,skillName?,outcome?,callContains?},sound:"wood",volume:0.5}],categorySounds:{tool:"wood",hook:"click",...}}`；first matching enabled rule。预置 sounds：wood, glass, bell, low, brush, click, dissonance, mute；自定义 sound 为上传返回的 `asset:<id>`。
 - `POST /api/sounds`：原始音频 bytes，`Content-Type: audio/...`，`X-Filename` URL-encoded；返回 `{sound:"asset:<id>",name,url}`。`GET /api/sounds` 返回 `{sounds:[...]}`。上限5MB。
 - `POST /api/import`：Symphony export JSON，或 `{format:"dsh-jsonl",text:"...",sourceId:"..."}`；响应同 ingest。另支持 `Content-Type: application/octet-stream` 原始 dsh v3 JSONL / zstd 文件，`X-Filename`。
 - `POST /api/demo`：生成明确标记的多session演示记录；幂等。`POST /api/demo/live`：启动限时演示事件流，响应 `{started:true}`；重复运行先停旧流。
@@ -42,4 +42,8 @@ domain 模块 `src/events.mjs` 导出 `normalizeEvent(event, context = {})`，co
 
 `src/events.mjs` 另导出 `summarizeSession(events,header={})` 返回 `{title,status,skills,errorCount}`；`src/catalog.mjs` 导出 `getCatalog(extraTypes=[])`。`src/demo.mjs` 导出 `createDemoBatch(now=Date.now())`，返回 ingest body，含3个session；及 `createLiveDemoFrames(now)` 返回 `{delayMs,batch}[]`，每条使用kind demo并标记。
 
-音频规则匹配在 `public/audio.js`；元数据与原生解析在 domain 模块；Server 不解释声音。声音默认关闭，需点击启用 AudioContext。Session切换取消旧排程，历史补采不触发现场音。记录继续与声音无关。
+音频规则匹配在 `public/sound-rules.js`，Web Audio 合成在 `public/audio.js`；元数据与原生解析在 domain 模块；Server 复用规则条件校验，不执行声音。声音默认关闭，需点击启用 AudioContext。Session切换取消旧排程，历史补采不触发现场音。记录继续与声音无关。
+
+匹配字段的字符串值维持原来的大小写敏感精确比较；`toolName`、`skillName` 也接受 `{contains:"gstack"}`，按字面子串匹配并忽略大小写。`callContains:"gstack"` 只检查 `tool/call`、`tool/ptc-dispatch-start` 的工具名、具名 Skill 和原始完整参数，以及 `user/message` 中 `explicit-invocation` 证据的 Skill 名；不扫描返回内容、聊天或截断摘要。JSON 参数解析仅为解码转义，格式不完整时仍检查保存的字符串。输入以已脱敏记录为准；命中不改变原生 Skill 证据类型或执行结果。
+
+一条规则中的条件为 AND，调用关键词的候选字段之间为 OR。`matchSound()` 返回 `{sound,volume,ruleId,reason,evidence:[{field,operator,expected,value}]}`，包含匹配的 `value` 是命中位置附近的片段，完整证据留在事件 `raw`。旧字符串规则无需迁移。

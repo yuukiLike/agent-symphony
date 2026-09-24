@@ -3,6 +3,7 @@ import { mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { normalizeEvent, summarizeSession, createEventContext } from './events.mjs';
+import { SOUND_PRESETS, validMatchCondition } from '../public/sound-rules.js';
 
 export const DEFAULT_SETTINGS = {
   audio: { enabled: false, volume: 0.35 },
@@ -69,14 +70,13 @@ export function validateSettings(value, soundIds = []) {
   if (!object(value) || !object(value.audio) || typeof value.audio.enabled !== 'boolean') throw new Error('无效的声音设置');
   const gain = v => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1;
   if (!gain(value.audio.volume) || !Array.isArray(value.rules) || value.rules.length > 1000 || !object(value.categorySounds)) throw new Error('音量须为 0–1，声音规则最多 1000 条');
-  const sounds = new Set(['wood', 'glass', 'bell', 'low', 'brush', 'click', 'mute', ...soundIds]);
-  const fields = new Set(['type', 'category', 'hookPoint', 'handlerId', 'toolName', 'skillName', 'outcome']);
+  const sounds = new Set([...SOUND_PRESETS.map(sound => sound.id), ...soundIds]);
   const ids = new Set();
   for (const r of value.rules) {
     if (!object(r) || !string(r.id, 200) || ids.has(r.id) || typeof r.enabled !== 'boolean' || !object(r.match) || !sounds.has(r.sound)) throw new Error('规则 ID 必须唯一，且需要有效的匹配条件和音色');
     ids.add(r.id);
     if (r.volume !== undefined && !gain(r.volume)) throw new Error('规则音量须为 0–1');
-    for (const [k, v] of Object.entries(r.match)) if (!fields.has(k) || !string(v, 500)) throw new Error(`无效的规则条件：${k}`);
+    for (const [k, v] of Object.entries(r.match)) if (!validMatchCondition(k, v)) throw new Error(`无效的规则条件：${k}`);
   }
   for (const [key, sound] of Object.entries(value.categorySounds)) {
     if (!Object.hasOwn(DEFAULT_SETTINGS.categorySounds, key) || !sounds.has(sound)) throw new Error('无效的默认音色');

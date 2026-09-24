@@ -1,5 +1,23 @@
 # Agent Symphony 0.1.0 · dsh 验证记录
 
+## 2026-09-24：名称与调用关键词配声
+
+环境：macOS arm64、Node 24.15.0、pnpm 11.14.0、Playwright 1.63.0。浏览器单独安装在忽略提交的 `.symphony/playwright-browsers` 中，测试记录使用 `.symphony/browser-test`。
+
+- `pnpm check`、`pnpm test`：通过；42 项领域／存储／HTTP／适配器测试，包含新增名称精确／包含匹配、完整参数关键词、非调用文字排除、规则优先级、静音、配置持久化及非法条件拒绝。
+- 4 项相关浏览器用例通过：关键词模板与试听、名称方式保存／重载、命中字段与路径证据、旧精确静音规则、回放与历史导入边界。390px 和桌面规则弹窗已查看实际截图。
+- 浏览器试听观察到实际启动的两个 oscillator，调度频率为 330 Hz 和 349.23 Hz；这验证不和谐音的发声路径，不代表已经评价用户设备上的实际听感。
+
+浏览器验证命令：
+
+```sh
+PLAYWRIGHT_BROWSERS_PATH=.symphony/playwright-browsers pnpm exec playwright test --grep 'keyword template|name modes|precise sound rule|Web Audio activates'
+```
+
+验证使用模拟调用记录，没有加载或执行 gstack Skill，也没有新增宿主适配器。关键词命中表示调用名称／参数符合设置；不据此判断授权或 Skill 已成功执行。本次未重跑下方历史的真实 dsh 宿主联调。
+
+## 2026-09-21：初版 dsh 接入
+
 日期：2026-09-21。环境：macOS arm64，Node 24.18.0，pnpm 11.14.0。宿主基线：npm 发布的 `@deepseek-ai/dsh@0.1.6-alpha.2`、Cordis 4.0.2。
 
 ## 已验证

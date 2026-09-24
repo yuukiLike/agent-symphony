@@ -1,11 +1,11 @@
 import { AudioEngine, SOUND_PRESETS, matchSound } from './audio.js';
+import { MATCH_LABELS, NAME_FIELDS } from './sound-rules.js';
 
 const $ = selector => document.querySelector(selector);
 const audio = new AudioEngine();
 const CATEGORY_LABELS = { session:'会话', model:'模型', tool:'工具', hook:'Hook', context:'上下文', interaction:'交互', collaboration:'协作', artifact:'产物', other:'其他' };
 const GLYPHS = { session:'◉', model:'◇', tool:'↗', hook:'⌁', context:'≡', interaction:'↳', collaboration:'⋈', artifact:'▤', other:'·' };
 const OUTCOME_LABELS = { success:'成功', failure:'失败', blocked:'被阻止', cancelled:'已取消', unknown:'未知' };
-const MATCH_LABELS = { type:'事件', category:'类别', hookPoint:'Hook', handlerId:'Handler', toolName:'工具', skillName:'Skill', outcome:'结果' };
 const state = {
   sessions:[], selectedKey:null, events:[], catalog:{ events:[], hooks:[], categories:[] }, sounds:[], status:null,
   settings:{ audio:{enabled:false,volume:0.35},rules:[],categorySounds:{} },
@@ -310,7 +310,11 @@ function showDetail(event) {
   content.append(dl,el('h3','','这次为什么是这个声音'));
   const match=matchSound(event,state.settings); const soundBox=el('div','sound-evidence');
   const index=state.settings.rules.findIndex(rule=>rule.id===match.ruleId);
-  soundBox.append(el('div','',`${soundLabel(match.sound)} · ${match.ruleId ? `第 ${index+1} 条精确规则` : `${categoryLabel(event.category)}类别默认`} · 音量 ${Math.round(match.volume*100)}%`));
+  soundBox.append(el('div','',`${soundLabel(match.sound)} · ${match.ruleId ? `第 ${index+1} 条声音规则` : `${categoryLabel(event.category)}类别默认`} · 音量 ${Math.round(match.volume*100)}%`));
+  for (const evidence of match.evidence) {
+    const label = evidence.field === 'arguments' ? '调用参数' : MATCH_LABELS[evidence.field] || evidence.field;
+    soundBox.append(el('p','match-evidence',`${label}${evidence.operator === 'contains' ? `包含「${evidence.expected}」` : `精确匹配「${evidence.expected}」`}：${evidence.value}`));
+  }
   const actions=el('div','button-row'); actions.append(makeButton('▷ 回听这条','button small',()=>run(()=>previewSound(match.sound,match.volume))),makeButton('配置声音','button small',()=>openRule(null, { type:event.type, ...(event.hookPoint ? {hookPoint:event.hookPoint}:{}), ...(event.handlerId ? {handlerId:event.handlerId}:{}) })));
   soundBox.append(actions); content.append(soundBox);
   if(event.correlationKey) {
@@ -443,7 +447,10 @@ function renderSoundSettings() {
     const item=el('div',`rule-item${rule.enabled?'':' disabled'}`);
     const toggle=el('input'); toggle.type='checkbox';toggle.checked=rule.enabled;toggle.setAttribute('aria-label',`启用第 ${index+1} 条规则`);toggle.addEventListener('change',()=>{rule.enabled=toggle.checked;settingsChanged();});
     const chips=el('div','rule-match');
-    for(const [key,value] of Object.entries(rule.match || {})) chips.append(el('span','match-chip',`${MATCH_LABELS[key] || key}: ${value}`));
+    for(const [key,value] of Object.entries(rule.match || {})) {
+      const contains = key === 'callContains' || typeof value === 'object';
+      chips.append(el('span','match-chip',`${MATCH_LABELS[key] || key}${contains ? ' 包含' : ' ='} ${contains && typeof value === 'object' ? value.contains : value}`));
+    }
     if(!Object.keys(rule.match || {}).length) chips.append(el('span','match-chip','全部事件'));
     const controls=el('div','rule-controls');
     const up=makeButton('↑','icon-button',()=>moveRule(index,-1),'上移规则'); up.disabled=index===0;
@@ -465,13 +472,17 @@ function renderSoundSettings() {
 function settingsChanged(render=true) { queueSettingsSave(); if(render) renderSoundSettings();renderTimeline();if(state.selectedEvent){const event=state.events.find(item=>eventId(item)===state.selectedEvent);if(event)showDetail(event);} }
 function moveRule(index,delta) { const target=index+delta;if(target<0 || target>=state.settings.rules.length)return;const [rule]=state.settings.rules.splice(index,1);state.settings.rules.splice(target,0,rule);settingsChanged(); }
 
-function openRule(rule=null, match={}) {
+function openRule(rule=null, match={}, sound='wood') {
   state.editingRuleId=rule?.id || null;
   const form=$('#rule-form');form.reset();$('#rule-error').textContent='';
   $('#rule-dialog-title').textContent=rule?'编辑声音规则':'添加声音规则';
   const category=form.elements.namedItem('category');category.replaceChildren();addOption(category,'','不限类别');for(const [id,label]of Object.entries(CATEGORY_LABELS))addOption(category,id,label);
-  for(const key of Object.keys(MATCH_LABELS))form.elements.namedItem(key).value=(rule?.match || match)[key] || '';
-  soundOptions(form.elements.namedItem('sound'),rule?.sound || 'wood');
+  for(const key of Object.keys(MATCH_LABELS)) {
+    const value = (rule?.match || match)[key];
+    form.elements.namedItem(key).value = typeof value === 'object' ? value.contains : value || '';
+    if(NAME_FIELDS.includes(key)) form.elements.namedItem(`${key}Mode`).value = typeof value === 'object' ? 'contains' : 'equals';
+  }
+  soundOptions(form.elements.namedItem('sound'),rule?.sound || sound);
   form.elements.namedItem('volume').value=rule?.volume ?? .5;
   form.elements.namedItem('enabled').checked=rule?.enabled ?? true;
   $('#rule-dialog').showModal();
@@ -610,11 +621,15 @@ function bindEvents() {
     toast(buttonId==='copy-connection-command'?'接入命令已复制。':'dsh 插件配置已复制。');
   }));
   $('#add-rule').addEventListener('click',()=>openRule());
+  $('#add-watch-rule').addEventListener('click',()=>openRule(null,{callContains:'gstack'},'dissonance'));
   for(const id of ['close-rule','cancel-rule'])$('#'+id).addEventListener('click',()=>$('#rule-dialog').close());
   $('#preview-rule').addEventListener('click',()=>run(()=>previewSound($('#rule-form').elements.namedItem('sound').value,Number($('#rule-form').elements.namedItem('volume').value))));
   $('#rule-form').addEventListener('submit',event=>{
     event.preventDefault();const form=event.currentTarget;const match={};
-    for(const key of Object.keys(MATCH_LABELS)){const value=form.elements.namedItem(key).value.trim();if(value)match[key]=value;}
+    for(const key of Object.keys(MATCH_LABELS)) {
+      const value=form.elements.namedItem(key).value.trim();
+      if(value) match[key]=NAME_FIELDS.includes(key) && form.elements.namedItem(`${key}Mode`).value === 'contains' ? {contains:value} : value;
+    }
     if(!Object.keys(match).length){$('#rule-error').textContent='至少选择一个事件、类别或调查对象，以免意外覆盖全部声音。';return;}
     const rule={id:state.editingRuleId || crypto.randomUUID(),enabled:form.elements.namedItem('enabled').checked,match,sound:form.elements.namedItem('sound').value,volume:Number(form.elements.namedItem('volume').value)};
     const index=state.settings.rules.findIndex(item=>item.id===rule.id);if(index>=0)state.settings.rules[index]=rule;else state.settings.rules.unshift(rule);

@@ -1,25 +1,6 @@
-export const SOUND_PRESETS = [
-  { id: 'wood', label: '木音', description: '轻短、温暖的敲击' },
-  { id: 'glass', label: '玻璃', description: '清亮、有少许余韵' },
-  { id: 'bell', label: '铃音', description: '柔和的双音泛音' },
-  { id: 'low', label: '低音', description: '低沉、克制的回声' },
-  { id: 'brush', label: '沙刷', description: '细密而短的颗粒' },
-  { id: 'click', label: '微响', description: '干净的短促点击' },
-  { id: 'mute', label: '静音', description: '保留记录，不播放' },
-];
+export { SOUND_PRESETS, matchSound } from './sound-rules.js';
 
-const MATCH_KEYS = new Set(['type', 'category', 'hookPoint', 'handlerId', 'toolName', 'skillName', 'outcome']);
 const clamp = (value, fallback = 0.5) => Number.isFinite(Number(value)) ? Math.max(0, Math.min(1, Number(value))) : fallback;
-
-export function matchSound(event, settings) {
-  for (const rule of settings.rules || []) {
-    if (!rule.enabled) continue;
-    const entries = Object.entries(rule.match || {});
-    if (!entries.every(([key, value]) => MATCH_KEYS.has(key) && value !== '' && event[key] != null && String(event[key]) === String(value))) continue;
-    return { sound: rule.sound || 'mute', volume: clamp(rule.volume), ruleId: rule.id, reason: '精确规则' };
-  }
-  return { sound: settings.categorySounds?.[event.category] || 'mute', volume: 0.5, ruleId: null, reason: '类别默认' };
-}
 
 export class AudioEngine {
   constructor() {
@@ -132,6 +113,8 @@ export class AudioEngine {
       duration = 0.9; oscillator(523.25, 'sine'); oscillator(1046.5, 'sine', 0.24); oscillator(1569.75, 'sine', 0.08);
     } else if (sound === 'low') {
       duration = 0.38; oscillator(145, 'sine', 1, 75); oscillator(218, 'sine', 0.1);
+    } else if (sound === 'dissonance') {
+      duration = 0.42; oscillator(330, 'sine', 0.5); oscillator(349.23, 'sine', 0.5);
     } else {
       duration = 0.16; oscillator(440, 'sine', 0.75, 180); oscillator(790, 'sine', 0.13, 490);
     }
